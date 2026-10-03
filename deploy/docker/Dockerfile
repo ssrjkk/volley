@@ -1,7 +1,7 @@
 # @author ssrjkk | volley
 # Multi-stage build for minimal image size
 # Stage 1: Builder
-FROM ubuntu:24.04 AS builder
+FROM ubuntu:25.10 AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
@@ -54,7 +54,7 @@ RUN cmake --build build-release --config Release -j$(nproc)
 RUN cmake --install build-release
 
 # Stage 2: Runtime image (minimal)
-FROM ubuntu:24.04 AS runtime
+FROM ubuntu:25.10 AS runtime
 
 ARG DEBIAN_FRONTEND=noninteractive
 
