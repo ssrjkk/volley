@@ -186,3 +186,14 @@ Apache 2.0 — see [LICENSE](LICENSE)
 **ssrjkk**  
 Telegram: [@ssrjkk](https://t.me/ssrjkk)  
 Email: ray013lefe@gmail.com
+
+
+## Building
+
+```bash
+git clone https://github.com/ssrjkk/volley.git
+cd volley
+mkdir build && cd build
+cmake ..
+make
+```
