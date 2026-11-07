@@ -3,7 +3,6 @@
 **High-performance load testing for modern HTTP services**
 
 [![CI](https://github.com/ssrjkk/volley/actions/workflows/ci.yml/badge.svg)](https://github.com/ssrjkk/volley/actions/workflows/ci.yml)
-[![Coverage](https://codecov.io/gh/ssrjkk/volley/branch/main/graph/badge.svg)](https://codecov.io/gh/ssrjkk/volley)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/compiler_support/20)
 
