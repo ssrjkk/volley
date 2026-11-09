@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>volley — не гадайте, где предел — SSRJKK</title>
+<meta name="description" content="volley — платформа нагрузочного тестирования HTTP: асинхронное C++20 ядро на Boost.Beast/ASIO, YAML-сценарии, OAuth2/mTLS/Vault, OTLP+Prometheus, Python SDK и REST control plane.">
+<meta name="theme-color" content="#ededed">
+<meta name="color-scheme" content="light">
+<!--
+  Стиль: Rauno Freiberg — горизонтальный рил белых 5:3 панелей на Fog Canvas #ededed,
+  квадратные углы, без теней и рамок, иерархия только размером (один вес 400, трекинг 0).
+  ШРИФТЫ (проверка кириллицы в Google Fonts, subset cyrillic):
+  — PP Neue Montreal (спека) → substitute Inter Tight: кириллица ЕСТЬ ✓ — используем как есть.
+  Единственное отступление от спеки: блок кода в секции «запуск» набран системным
+  моноширинным шрифтом (моно в спеке нет, но командам терминала он необходим).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fog:#ededed;      /* Fog Canvas — поле страницы */
+  --paper:#ffffff;    /* Paper — все панели */
+  --yellow:#ffff02;   /* Signal Yellow — только плоские формы */
+  --graphite:#171717; /* Graphite Ink — читабельный текст */
+  --ink:#000000;      /* Ink — плакатный кегль */
+  --label:#6f6f6f;    /* Label Gray — подписи 14px */
+  --mini:#8f8f8f;     /* Minimap Gray — тики и трекер */
+  --orange:#ff5800;   /* Devour Orange — один диск */
+  --blue:#0000ff;     /* Cursor Blue — одна пиксельная метка */
+  --red:#ff484c;      /* Field Note Red — один рукописный штрих */
+  --sans:'Inter Tight',Inter,-apple-system,'Segoe UI',Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,'Cascadia Mono',Consolas,'Liberation Mono',Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{margin:0;background:var(--fog);color:var(--graphite);font:400 17px/1.5 var(--sans);letter-spacing:0;cursor:crosshair;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+button{cursor:pointer;font:inherit}
+a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:fixed;left:16px;top:-48px;z-index:50;background:var(--ink);color:var(--paper);padding:10px 16px;transition:top .2s ease-in-out}
+.skip:focus{top:12px}
+
+/* ── Минимап: тонкие серые тики + полый трекер, по центру вверху ── */
+.minimap{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:20;padding:4px 2px}
+.minimap #ticks{display:flex;gap:8px}
+.minimap i{display:block;width:1px;height:16px;background:var(--mini)}
+.minimap .tracker{position:absolute;top:-1px;left:-6px;width:13px;height:24px;border:1px solid var(--mini);transition:transform .2s ease-in-out}
+
+/* ── Топбар: минимальный хром ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 32px}
+.brand{font-size:20px;line-height:1.2;color:var(--ink)}
+.topnav{display:flex;gap:24px}
+.topnav a{font-size:16px;color:var(--graphite)}
+.topnav a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+
+/* ── Горизонтальный рил панелей 5:3 ── */
+.reel-zone{padding:40px 0 8px}
+.reel{--h:min(76vh,700px);display:flex;align-items:center;gap:16px;height:var(--h);overflow-x:auto;padding:32px 64px;scroll-snap-type:x proximity;scrollbar-width:none}
+.reel::-webkit-scrollbar{display:none}
+.item{flex:0 0 auto;height:100%;display:flex;flex-direction:column;gap:8px;scroll-snap-align:center}
+.caption{font-size:14px;line-height:1.2;color:var(--label)}
+.panel{position:relative;height:calc(100% - 90px);aspect-ratio:5/3;background:var(--paper);overflow:hidden;padding:64px}
+.panel-hero{height:calc(100% - 26px)}
+.reel-hint{max-width:1240px;margin:8px auto 0;padding:0 64px;font-size:14px;color:var(--label)}
+
+/* Био-панель: тезис 85px со ступенчатыми строками над Signal Yellow диском */
+.panel-hero .disc{position:absolute;right:-6%;top:50%;transform:translateY(-50%);width:min(56%,430px);aspect-ratio:1;border-radius:9999px;background:var(--yellow)}
+.panel-hero .inner{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:20px;max-width:78%}
+h1{margin:0;font-size:clamp(44px,6vw,85px);line-height:1.2;font-weight:400;color:var(--graphite)}
+h1 .ind{display:block;padding-left:1.1em}
+.intro{margin:0;font-size:17px;line-height:1.5;max-width:480px;color:var(--graphite)}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;height:56px;padding:0 28px;font-size:18px;line-height:1.2;border:0}
+.btn-primary{background:var(--yellow);color:var(--ink);transition:background .2s ease-in-out,color .2s ease-in-out}
+.btn-primary:hover{background:var(--ink);color:var(--yellow)}
+.btn-ghost{background:transparent;border:1px solid var(--graphite);color:var(--graphite);transition:color .2s ease-in-out,border-color .2s ease-in-out}
+.btn-ghost:hover{color:var(--ink);border-color:var(--ink)}
+
+/* Тезис-панели: одно слово крупным кеглем + одна плоская метка */
+.thesis{margin:0;font-size:clamp(36px,4.6vw,72px);line-height:1.2;font-weight:400;color:var(--ink)}
+.thesis.long{font-size:clamp(28px,3.4vw,56px)}
+.thesis-note{position:absolute;left:64px;bottom:56px;margin:0;font-size:16px;line-height:1.4;max-width:60%;color:var(--graphite)}
+.disc-orange{position:absolute;right:56px;bottom:52px;width:140px;aspect-ratio:1;border-radius:9999px;background:var(--orange)}
+.mark-pixels{position:absolute;right:64px;bottom:64px}
+.mark-stroke{position:absolute;left:56px;bottom:96px;width:min(46%,280px);height:auto}
+
+/* Панель-вордмарк: гигантское слово, обрезанное краями панели */
+.panel-word{padding:0}
+.panel-word span{position:absolute;left:-.04em;top:-.24em;font-size:clamp(300px,52vw,640px);line-height:1;white-space:nowrap;color:var(--ink)}
+
+/* Жёлтый манифест */
+.panel-manifesto{width:min(1000px,88vw);aspect-ratio:auto;background:var(--yellow);padding:48px 64px;display:flex;flex-direction:column;justify-content:center}
+.panel-manifesto p{margin:0;font-size:clamp(34px,5vw,75px);line-height:1.2;font-weight:400;color:var(--ink)}
+
+/* ── Вертикальные секции под рилом ── */
+.sec{max-width:1240px;margin:0 auto;padding:64px 32px 0}
+.sec>.caption{display:block;margin-bottom:16px}
+.grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.cell{background:var(--paper);padding:32px;min-height:240px;display:flex;flex-direction:column;justify-content:space-between;gap:16px}
+.cell .num{font-size:14px;line-height:1.2;color:var(--label)}
+.cell h3{margin:0;font-size:clamp(24px,2.3vw,32px);line-height:1.2;font-weight:400;color:var(--ink)}
+.cell p{margin:0;font-size:15px;line-height:1.5;color:var(--label)}
+
+.process-panel{background:var(--paper);padding:48px;display:grid;grid-template-columns:repeat(4,1fr)}
+.step{padding:0 28px;border-left:1px solid var(--fog)}
+.step:first-child{border-left:0;padding-left:0}
+.step .num{font-size:14px;line-height:1.2;color:var(--label)}
+.step h3{margin:12px 0 8px;font-size:clamp(20px,1.8vw,28px);line-height:1.2;font-weight:400;color:var(--ink)}
+.step p{margin:0;font-size:14px;line-height:1.5;color:var(--label)}
+
+.demo-panel{background:var(--paper);padding:48px}
+.demo-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:32px}
+.big-num{margin:8px 0 0;font-size:clamp(40px,5vw,75px);line-height:1.2;font-weight:400;color:var(--ink)}
+.demo-sub{margin:8px 0 0;font-size:16px;line-height:1.5;max-width:560px;color:var(--graphite)}
+.btn-sm{height:48px;padding:0 22px;font-size:16px}
+.bars{display:flex;align-items:flex-end;gap:4px;height:150px;margin:8px 0 24px}
+.bars i{flex:1;min-width:3px;background:var(--graphite)}
+.demo-note{margin:0;font-size:14px;line-height:1.5;color:var(--label)}
+
+.launch-panel{background:var(--paper);padding:48px}
+.launch-panel pre{margin:0 0 20px;padding:24px;background:var(--fog);font:400 14px/1.7 var(--mono);color:var(--ink);overflow-x:auto}
+.launch-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.btn-copy{background:var(--ink);color:var(--paper);border:0;height:48px;padding:0 22px;font-size:16px;transition:opacity .2s ease-in-out}
+.btn-copy:hover{opacity:.85}
+.launch-row .note{margin:0;font-size:14px;color:var(--label)}
+
+footer{max-width:1240px;margin:0 auto;padding:48px 32px 56px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--label)}
+footer nav{display:flex;gap:24px}
+footer a{color:var(--graphite)}
+footer a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+
+/* ── Адаптив: 390px — вертикальный стек вместо ленты ── */
+@media(max-width:1000px){.minimap{display:none}}
+@media(max-width:880px){
+  .reel{--h:auto;flex-direction:column;align-items:stretch;height:auto;overflow:visible;padding:8px 20px 0}
+  .item{height:auto}
+  .panel,.panel-hero{height:auto;aspect-ratio:auto;width:100%;padding:32px 24px}
+  .panel-hero .inner{max-width:100%}
+  .panel-manifesto{width:100%;padding:32px 24px}
+  .panel-manifesto p{font-size:clamp(28px,7.6vw,40px)}
+  .thesis{font-size:clamp(34px,9vw,44px)}
+  .thesis.long{font-size:clamp(27px,7.2vw,34px)}
+  .thesis-note{position:static;margin-top:16px;max-width:100%}
+  .disc-orange{width:96px;right:24px;bottom:24px}
+  .mark-pixels{right:24px;bottom:24px;transform:scale(.8);transform-origin:bottom right}
+  .mark-stroke{left:24px;bottom:110px;width:56%}
+  .panel-word span{font-size:70vw}
+  .reel-hint{display:none}
+  .sec{padding:48px 20px 0}
+  .grid6{grid-template-columns:1fr}
+  .cell{min-height:0}
+  .process-panel{grid-template-columns:1fr;padding:32px 24px}
+  .step{border-left:0;border-top:1px solid var(--fog);padding:20px 0}
+  .step:first-child{border-top:0;padding-top:0}
+  .demo-panel,.launch-panel{padding:32px 24px}
+  .topbar{padding:16px 20px}
+  h1{font-size:clamp(38px,10vw,52px)}
+  .big-num{font-size:clamp(34px,9vw,48px)}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">К содержанию</a>
+
+<div class="minimap" aria-hidden="true">
+  <span id="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+  <span class="tracker" id="tracker"></span>
+</div>
+
+<header class="topbar">
+  <a class="brand" href="#top">volley</a>
+  <nav class="topnav" aria-label="Внешние ссылки">
+    <a href="https://github.com/ssrjkk/volley">GitHub ↗</a>
+    <a href="https://ssrjkk.github.io/">Все проекты ↗</a>
+  </nav>
+</header>
+
+<main id="main">
+<!-- ── Хиро: горизонтальный рил панелей-тезисов ── -->
+<section class="reel-zone" id="top" aria-label="volley — тезисы">
+  <div class="reel" id="reel" tabindex="0" role="region" aria-label="Горизонтальная лента панелей, прокручивается вбок; в фокусе листается стрелками.">
+
+    <div class="item">
+      <span class="caption">volley — нагрузочное тестирование http</span>
+      <div class="panel panel-hero">
+        <span class="disc" aria-hidden="true"></span>
+        <div class="inner">
+          <h1>Не гадайте,<span class="ind">где предел.</span></h1>
+          <p class="intro">Создавайте воспроизводимую нагрузку, описывайте сценарии в YAML и наблюдайте поведение сервиса через метрики и трассировки.</p>
+          <div class="btnrow">
+            <a class="btn btn-primary" href="https://github.com/ssrjkk/volley#readme">Смотреть на GitHub →</a>
+            <a class="btn btn-ghost" href="https://github.com/ssrjkk/volley#readme">Документация</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="item">
+      <span class="caption">тезис 01</span>
+      <div class="panel">
+        <p class="thesis">Сценарий.</p>
+        <p class="thesis-note">Шаги, веса и длительность описываются в YAML — прогон объявляется, а не собирается вручную.</p>
+      </div>
+    </div>
+
+    <div class="item">
+      <span class="caption">тезис 02</span>
+      <div class="panel">
+        <p class="thesis">Нагрузка.</p>
+        <span class="disc-orange" aria-hidden="true"></span>
+        <p class="thesis-note">Асинхронное ядро на C++20 генерирует поток запросов к целевому сервису.</p>
+      </div>
+    </div>
+
+    <div class="item">
+      <span class="caption">тезис 03</span>
+      <div class="panel">
+        <p class="thesis">Наблюдение.</p>
+        <svg class="mark-pixels" width="112" height="56" viewBox="0 0 8 4" shape-rendering="crispEdges" aria-hidden="true"><g fill="#0000ff"><rect x="0" y="3" width="1" height="1"/><rect x="1" y="2" width="1" height="2"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="1" width="1" height="3"/><rect x="4" y="2" width="1" height="2"/><rect x="5" y="0" width="1" height="4"/><rect x="6" y="1" width="1" height="3"/><rect x="7" y="0" width="1" height="4"/></g></svg>
+        <p class="thesis-note">Метрики OTLP и Prometheus плюс трассировки показывают поведение сервиса под нагрузкой.</p>
+      </div>
+    </div>
+
+    <div class="item">
+      <span class="caption">тезис 04</span>
+      <div class="panel">
+        <p class="thesis">Предел.</p>
+        <svg class="mark-stroke" viewBox="0 0 260 40" aria-hidden="true"><path d="M6 26 C 60 12, 112 34, 152 22 S 232 16, 254 24" fill="none" stroke="#ff484c" stroke-width="7" stroke-linecap="round"/></svg>
+        <p class="thesis-note">Прогон называет фактическую границу производительности, а не предположение о ней.</p>
+      </div>
+    </div>
+
+    <div class="item">
+      <span class="caption">тезис 05</span>
+      <div class="panel">
+        <p class="thesis long">Воспроизводимость.</p>
+        <p class="thesis-note">Тот же сценарий, тот же профиль нагрузки, тот же результат — прогон повторяется один в один.</p>
+      </div>
+    </div>
+
+    <div class="item">
+      <span class="caption">volley</span>
+      <div class="panel panel-word" role="img" aria-label="Крупная надпись volley, обрезанная краями панели">
+        <span aria-hidden="true">volley</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <span class="caption">манифест</span>
+      <div class="panel panel-manifesto">
+        <p>Не гадайте.</p>
+        <p>Опишите сценарий.</p>
+        <p>Найдите предел.</p>
+        <p>Воспроизведите.</p>
+      </div>
+    </div>
+
+  </div>
+  <p class="reel-hint">горизонтальная лента — прокрутите вбок →</p>
+</section>
+
+<!-- ── Возможности ── -->
+<section class="sec" id="features">
+  <span class="caption">возможности</span>
+  <div class="grid6">
+    <div class="cell"><span class="num">01</span><h3>YAML-сценарии</h3><p>Декларативное описание шагов, профиля нагрузки и проверок прогона.</p></div>
+    <div class="cell"><span class="num">02</span><h3>C++20 ядро</h3><p>Асинхронный движок на Boost.Beast и ASIO исполняет прогон.</p></div>
+    <div class="cell"><span class="num">03</span><h3>HTTP · WebSocket · raw TCP</h3><p>Три уровня работы с целевым сервисом — от запросов до сырых соединений.</p></div>
+    <div class="cell"><span class="num">04</span><h3>OAuth2 · mTLS · Vault</h3><p>Доступ к защищённым целям без секретов в коде и в репозитории.</p></div>
+    <div class="cell"><span class="num">05</span><h3>OTLP + Prometheus</h3><p>Трассировки и метрики прогона уходят в наблюдаемые бэкенды.</p></div>
+    <div class="cell"><span class="num">06</span><h3>Python SDK и REST</h3><p>Управление прогонами из кода и через REST control plane.</p></div>
+  </div>
+</section>
+
+<!-- ── Процесс ── -->
+<section class="sec" id="process">
+  <span class="caption">процесс</span>
+  <div class="process-panel">
+    <div class="step"><span class="num">01 →</span><h3>Сценарий YAML</h3><p>Описываете шаги, соединения и длительность нагрузки.</p></div>
+    <div class="step"><span class="num">02 →</span><h3>Асинхронное ядро</h3><p>C++20 исполняет сценарий и держит поток запросов.</p></div>
+    <div class="step"><span class="num">03 →</span><h3>HTTP / WebSocket</h3><p>Целевой сервис получает нагрузку по нужному протоколу.</p></div>
+    <div class="step"><span class="num">04</span><h3>Метрики и SLA</h3><p>Результат читается по метрикам и трассировкам, а не по ощущениям.</p></div>
+  </div>
+</section>
+
+<!-- ── Интерактивная иллюстрация (честная заглушка) ── -->
+<section class="sec" id="demo">
+  <span class="caption">иллюстрация</span>
+  <div class="demo-panel">
+    <div class="demo-head">
+      <div>
+        <span class="caption">план сценария</span>
+        <p class="big-num">40 × 10 = 400</p>
+        <p class="demo-sub">40 соединений × 10 запросов = 400 запросов. Нагрузка не отправляется.</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="replan" type="button">Пересобрать план</button>
+    </div>
+    <div class="bars" id="bars" role="img" aria-label="Заглушка: 40 соединений разной высоты. Нагрузка не отправляется, ничего не измеряется."></div>
+    <p class="demo-note">Локальная иллюстрация, не подключается к сервисам. Столбики — форма плана, а не результаты прогона.</p>
+  </div>
+</section>
+
+<!-- ── Запуск ── -->
+<section class="sec" id="start">
+  <span class="caption">запуск</span>
+  <div class="launch-panel">
+    <pre id="cmd">git clone https://github.com/ssrjkk/volley.git
+cd volley</pre>
+    <div class="launch-row">
+      <button class="btn-copy" type="button" data-copy="git clone https://github.com/ssrjkk/volley.git&#10;cd volley">Скопировать</button>
+      <p class="note">Скопируйте обе команды — дальше README в репозитории.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div>Проект SSRJKK · volley</div>
+  <nav aria-label="Футер">
+    <a href="https://github.com/ssrjkk/volley">Репозиторий ↗</a>
+    <a href="https://ssrjkk.github.io/">Все проекты ↗</a>
+  </nav>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  /* Минимап: трекер следует за горизонтальной прокруткой ленты */
+  var reel=document.getElementById('reel'),
+      ticks=document.getElementById('ticks'),
+      tracker=document.getElementById('tracker');
+  function upd(){
+    if(!reel||!tracker||!ticks)return;
+    var max=reel.scrollWidth-reel.clientWidth;
+    var p=max>0?reel.scrollLeft/max:0;
+    var range=ticks.offsetWidth-tracker.offsetWidth;
+    tracker.style.transform='translateX('+(p*range)+'px)';
+  }
+  if(reel){reel.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();}
+
+  /* Копирование команд запуска */
+  document.querySelectorAll('[data-copy]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var text=btn.getAttribute('data-copy');
+      function done(){
+        var old=btn.textContent;
+        btn.textContent='Скопировано';btn.disabled=true;
+        setTimeout(function(){btn.textContent=old;btn.disabled=false;},1600);
+      }
+      function fallback(){
+        var ta=document.createElement('textarea');
+        ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+        document.body.appendChild(ta);ta.select();
+        try{document.execCommand('copy');done();}catch(e){}
+        document.body.removeChild(ta);
+      }
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done,fallback);
+      }else{fallback();}
+    });
+  });
+
+  /* Иллюстрация-заглушка: 40 соединений, ничего не отправляется */
+  var bars=document.getElementById('bars'),replan=document.getElementById('replan');
+  function plan(){
+    if(!bars)return;
+    var html='';
+    for(var i=0;i<40;i++){
+      var h=12+Math.round(Math.random()*88);
+      html+='<i style="height:'+h+'%"></i>';
+    }
+    bars.innerHTML=html;
+  }
+  if(replan){replan.addEventListener('click',plan);}
+  plan();
+})();
+</script>
+</body>
+</html>
