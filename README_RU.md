@@ -13,6 +13,18 @@
 
 Enterprise-grade нагрузочное тестирование на C++20 async ядре. YAML-сценарии, безопасность OAuth2/Vault/mTLS, полная наблюдаемость с OpenTelemetry и Prometheus.
 
+**Сайт:** https://ssrjkk.github.io/volley/
+
+## Скриншоты
+
+Сняты с опубликованного сайта в настоящем браузере (Chrome, 1440×900 и 390×844).
+
+| Главная | Разделы |
+| --- | --- |
+| <img src="docs/screenshots/home.jpg" width="420" alt="volley — главная страница"> | <img src="docs/screenshots/content.jpg" width="420" alt="volley — разделы сайта"> |
+
+<p align="center"><img src="docs/screenshots/mobile.jpg" width="320" alt="volley — мобильная версия"></p>
+
 ## Почему volley?
 
 - **Молниеносная скорость** — Lock-free метрики, async I/O на Boost.Beast/ASIO, пул соединений
