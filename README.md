@@ -185,6 +185,8 @@ Every commit runs through 8 CI jobs:
 - [Architecture](docs/) — ADR and design docs
 - [Scenarios](scenarios/) — Example YAML configurations
 - [Grafana Dashboards](deploy/grafana/) — Pre-built monitoring
+- [Architecture](docs/architecture.md)
+- [Showcase](https://ssrjkk.github.io/volley/showcase/)
 
 ## License
 
