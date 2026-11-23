@@ -6,16 +6,19 @@ import tempfile
 import os
 import yaml
 import subprocess
+from collections.abc import Callable, Iterator
 from pathlib import Path
 from volley import ScenarioEngine
 
+ConfigFactory = Callable[[str, dict[str, object]], str]
+
 
 @pytest.fixture
-def temp_config():
+def temp_config() -> Iterator[ConfigFactory]:
     """Create temporary YAML config files for testing"""
-    configs = {}
+    configs: dict[str, str] = {}
 
-    def _create(name, content):
+    def _create(name: str, content: dict[str, object]) -> str:
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump(content, f)
             configs[name] = f.name
@@ -31,7 +34,7 @@ def temp_config():
 
 
 @pytest.fixture
-def mock_cli_path():
+def mock_cli_path() -> str | None:
     """Get path to mock CLI script"""
     mock_path = Path(__file__).parent.parent.parent / "tools" / "mock_cli.py"
     if mock_path.exists():
@@ -39,9 +42,9 @@ def mock_cli_path():
     return None
 
 
-def test_scenario_engine_load_valid_config(temp_config):
+def test_scenario_engine_load_valid_config(temp_config: ConfigFactory) -> None:
     """Test loading a valid YAML configuration"""
-    config_content = {
+    config_content: dict[str, object] = {
         "test_id": "integration-test-001",
         "target": {"base_url": "http://localhost:8080"},
         "load_profile": [{"stage": "ramp", "duration": "10s", "target_rps": 100}],
@@ -66,7 +69,7 @@ def test_scenario_engine_load_valid_config(temp_config):
     assert engine.config["load_profile"][0]["target_rps"] == 100
 
 
-def test_scenario_engine_load_invalid_config():
+def test_scenario_engine_load_invalid_config() -> None:
     """Test loading a non-existent configuration file"""
     engine = ScenarioEngine("/nonexistent/path/config.yaml")
 
@@ -75,7 +78,7 @@ def test_scenario_engine_load_invalid_config():
     assert result is False
 
 
-def test_scenario_engine_load_malformed_yaml(temp_config):
+def test_scenario_engine_load_malformed_yaml(temp_config: ConfigFactory) -> None:
     """Test loading a malformed YAML file"""
     with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
         f.write("invalid: yaml: content: [unterminated")
@@ -89,9 +92,9 @@ def test_scenario_engine_load_malformed_yaml(temp_config):
         os.unlink(malformed_path)
 
 
-def test_scenario_engine_config_property(temp_config):
+def test_scenario_engine_config_property(temp_config: ConfigFactory) -> None:
     """Test config property returns loaded configuration"""
-    config_content = {
+    config_content: dict[str, object] = {
         "test_id": "property-test",
         "target": {"base_url": "http://example.com"},
     }
@@ -106,9 +109,9 @@ def test_scenario_engine_config_property(temp_config):
     assert config["target"]["base_url"] == "http://example.com"
 
 
-def test_scenario_engine_complex_config(temp_config):
+def test_scenario_engine_complex_config(temp_config: ConfigFactory) -> None:
     """Test loading complex configuration with multiple scenarios"""
-    config_content = {
+    config_content: dict[str, object] = {
         "test_id": "complex-test",
         "target": {"base_url": "http://api.example.com"},
         "load_profile": [
@@ -153,7 +156,7 @@ def test_scenario_engine_complex_config(temp_config):
     assert engine.config["scenarios"][1]["weight"] == 30
 
 
-def test_cli_version_command(mock_cli_path):
+def test_cli_version_command(mock_cli_path: str | None) -> None:
     """Test CLI --version command"""
     if mock_cli_path is None:
         pytest.skip("Mock CLI not found")
@@ -170,7 +173,7 @@ def test_cli_version_command(mock_cli_path):
     assert "1.1.0" in result.stdout
 
 
-def test_cli_help_command(mock_cli_path):
+def test_cli_help_command(mock_cli_path: str | None) -> None:
     """Test CLI --help command"""
     if mock_cli_path is None:
         pytest.skip("Mock CLI not found")
@@ -189,7 +192,7 @@ def test_cli_help_command(mock_cli_path):
     assert "--help" in result.stdout
 
 
-def test_cli_invalid_option(mock_cli_path):
+def test_cli_invalid_option(mock_cli_path: str | None) -> None:
     """Test CLI with invalid option"""
     if mock_cli_path is None:
         pytest.skip("Mock CLI not found")
@@ -205,7 +208,7 @@ def test_cli_invalid_option(mock_cli_path):
     assert "Unknown option" in result.stderr
 
 
-def test_cli_no_arguments(mock_cli_path):
+def test_cli_no_arguments(mock_cli_path: str | None) -> None:
     """Test CLI with no arguments"""
     if mock_cli_path is None:
         pytest.skip("Mock CLI not found")
@@ -221,9 +224,9 @@ def test_cli_no_arguments(mock_cli_path):
     assert "Usage:" in result.stderr
 
 
-def test_scenario_engine_with_authentication(temp_config):
+def test_scenario_engine_with_authentication(temp_config: ConfigFactory) -> None:
     """Test configuration with authentication settings"""
-    config_content = {
+    config_content: dict[str, object] = {
         "test_id": "auth-test",
         "target": {"base_url": "http://localhost:8080"},
         "authentication": {
@@ -247,9 +250,9 @@ def test_scenario_engine_with_authentication(temp_config):
     assert engine.config["authentication"]["client_credentials"]["client_id"] == "test-client"
 
 
-def test_scenario_engine_with_observability(temp_config):
+def test_scenario_engine_with_observability(temp_config: ConfigFactory) -> None:
     """Test configuration with observability settings"""
-    config_content = {
+    config_content: dict[str, object] = {
         "test_id": "observability-test",
         "target": {"base_url": "http://localhost:8080"},
         "observability": {
@@ -272,9 +275,9 @@ def test_scenario_engine_with_observability(temp_config):
     assert engine.config["observability"]["tracing"]["sample_rate"] == 0.1
 
 
-def test_scenario_engine_empty_config(temp_config):
+def test_scenario_engine_empty_config(temp_config: ConfigFactory) -> None:
     """Test loading empty configuration"""
-    config_content = {}
+    config_content: dict[str, object] = {}
 
     config_path = temp_config("empty", config_content)
     engine = ScenarioEngine(config_path)
@@ -285,11 +288,11 @@ def test_scenario_engine_empty_config(temp_config):
     assert engine.config == {}
 
 
-def test_scenario_engine_with_environment_variables(temp_config):
+def test_scenario_engine_with_environment_variables(temp_config: ConfigFactory) -> None:
     """Test configuration with environment variable references"""
     os.environ["TEST_BASE_URL"] = "http://env-test.example.com"
 
-    config_content = {
+    config_content: dict[str, object] = {
         "test_id": "env-test",
         "target": {"base_url": "${TEST_BASE_URL}"},
         "load_profile": [{"stage": "test", "duration": "10s", "target_rps": 100}],
@@ -306,7 +309,7 @@ def test_scenario_engine_with_environment_variables(temp_config):
     del os.environ["TEST_BASE_URL"]
 
 
-def test_cli_multiple_commands(mock_cli_path):
+def test_cli_multiple_commands(mock_cli_path: str | None) -> None:
     """Test multiple CLI commands in sequence"""
     if mock_cli_path is None:
         pytest.skip("Mock CLI not found")
@@ -327,9 +330,9 @@ def test_cli_multiple_commands(mock_cli_path):
         assert result.returncode == 0
 
 
-def test_scenario_engine_large_config(temp_config):
+def test_scenario_engine_large_config(temp_config: ConfigFactory) -> None:
     """Test loading large configuration with many scenarios"""
-    scenarios = []
+    scenarios: list[dict[str, object]] = []
     for i in range(100):
         scenarios.append(
             {
@@ -339,7 +342,7 @@ def test_scenario_engine_large_config(temp_config):
             }
         )
 
-    config_content = {
+    config_content: dict[str, object] = {
         "test_id": "large-test",
         "target": {"base_url": "http://localhost:8080"},
         "load_profile": [{"stage": "test", "duration": "10s", "target_rps": 100}],
