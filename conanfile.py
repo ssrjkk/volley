@@ -17,8 +17,8 @@ class VolleyConan(ConanFile):
         self.requires("openssl/3.2.0")
         self.requires("nlohmann_json/3.11.2")
         self.requires("prometheus-cpp/1.2.4")
-        self.requires("grpc/1.63.0")
-        self.requires("protobuf/4.25.3")
+        self.requires("grpc/1.65.0")
+        self.requires("protobuf/5.27.0")
         self.requires("yaml-cpp/0.8.0")
 
     def layout(self):

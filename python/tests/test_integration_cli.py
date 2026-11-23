@@ -160,6 +160,7 @@ def test_cli_version_command(mock_cli_path: str | None) -> None:
     """Test CLI --version command"""
     if mock_cli_path is None:
         pytest.skip("Mock CLI not found")
+    assert mock_cli_path is not None
 
     result = subprocess.run(
         ["python", mock_cli_path, "--version"],
@@ -177,6 +178,7 @@ def test_cli_help_command(mock_cli_path: str | None) -> None:
     """Test CLI --help command"""
     if mock_cli_path is None:
         pytest.skip("Mock CLI not found")
+    assert mock_cli_path is not None
 
     result = subprocess.run(
         ["python", mock_cli_path, "--help"],
@@ -196,6 +198,7 @@ def test_cli_invalid_option(mock_cli_path: str | None) -> None:
     """Test CLI with invalid option"""
     if mock_cli_path is None:
         pytest.skip("Mock CLI not found")
+    assert mock_cli_path is not None
 
     result = subprocess.run(
         ["python", mock_cli_path, "--invalid-option"],
@@ -212,6 +215,7 @@ def test_cli_no_arguments(mock_cli_path: str | None) -> None:
     """Test CLI with no arguments"""
     if mock_cli_path is None:
         pytest.skip("Mock CLI not found")
+    assert mock_cli_path is not None
 
     result = subprocess.run(
         ["python", mock_cli_path],
@@ -313,6 +317,7 @@ def test_cli_multiple_commands(mock_cli_path: str | None) -> None:
     """Test multiple CLI commands in sequence"""
     if mock_cli_path is None:
         pytest.skip("Mock CLI not found")
+    assert mock_cli_path is not None
 
     commands = [
         ["--version"],
