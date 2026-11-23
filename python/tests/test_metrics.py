@@ -2,6 +2,7 @@
 
 import threading
 import time
+from collections.abc import Callable
 
 import pytest
 
@@ -70,7 +71,8 @@ class TestMetricsCollector:
 class TestTokenBucket:
     def test_initial_tokens(self) -> None:
         b = TokenBucket(100)
-        b.consume()  # burst == rate
+        consume: Callable[[], object] = b.consume
+        assert consume() is None  # burst == rate
 
     def test_rate_limit_slow(self) -> None:
         b = TokenBucket(1)
