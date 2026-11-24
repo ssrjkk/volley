@@ -10,7 +10,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 45
 
     steps:
       - uses: actions/checkout@v7
@@ -23,8 +23,11 @@ jobs:
       - name: Install Conan
         run: pip install conan --break-system-packages
 
-      - name: Cache Conan packages
-        uses: actions/cache@v6
+      - name: Detect Conan profile
+        run: conan profile detect --force
+
+      - name: Restore Conan packages
+        uses: actions/cache/restore@v6
         with:
           path: ~/.conan2
           key: conan-${{ runner.os }}-${{ hashFiles('conanfile.py') }}
@@ -36,7 +39,7 @@ jobs:
         run: |
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_TOOLCHAIN_FILE=build-conan/conan_toolchain.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=build-conan/build/Release/generators/conan_toolchain.cmake \
             -DVOLLEY_BUILD_TESTS=ON \
             -DVOLLEY_BUILD_PYTHON=OFF \
             -DVOLLEY_BUILD_WORKERS=OFF \
@@ -51,6 +54,13 @@ jobs:
         run: |
           cd build && ctest --output-on-failure --timeout 60 -j$(nproc)
 
+      - name: Save Conan packages
+        if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-${{ hashFiles('conanfile.py') }}
+
   python:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -64,7 +74,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install tools
-        run: pip install black mypy
+        run: pip install pytest==9.1.1 black==26.5.1 mypy==2.3.1 "PyYAML>=6.0"
 
       - name: Check formatting
         run: black --check python/
@@ -74,3 +84,6 @@ jobs:
 
       - name: Syntax check
         run: python3 -m py_compile python/volley/core.py
+
+      - name: Run Python tests
+        run: PYTHONPATH=python python3 -m pytest -q

@@ -4,14 +4,14 @@
 import tempfile
 import os
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from volley import LoadTest
 
 
 class TestFinalCoverage:
     """Test remaining uncovered lines."""
 
-    def test_find_cli_with_existing_file(self):
+    def test_find_cli_with_existing_file(self) -> None:
         """Test _find_cli when CLI exists in build directory."""
         from volley.core import _find_cli
 
@@ -23,7 +23,7 @@ class TestFinalCoverage:
             # Patch the paths list to include our temp directory
             with patch("volley.core.Path") as mock_path:
 
-                def path_side_effect(p):
+                def path_side_effect(p: str | Path) -> Path:
                     if "volley" in str(p) and tmpdir in str(p):
                         return cli_path
                     return Path(p)
@@ -36,7 +36,7 @@ class TestFinalCoverage:
                 assert isinstance(result, str)
 
     @patch("volley.HttpClient.request")
-    def test_loadtest_worker_client_none(self, mock_request):
+    def test_loadtest_worker_client_none(self, mock_request: Mock) -> None:
         """Test LoadTest _worker when client is None."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""
@@ -70,7 +70,7 @@ scenarios:
         finally:
             os.unlink(config_path)
 
-    def test_validate_sla_error_rate_exception(self):
+    def test_validate_sla_error_rate_exception(self) -> None:
         """Test validate_sla with invalid error_rate format."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""
@@ -100,7 +100,7 @@ load_profile:
         finally:
             os.unlink(config_path)
 
-    def test_validate_sla_p99_exception(self):
+    def test_validate_sla_p99_exception(self) -> None:
         """Test validate_sla with invalid p99_latency format."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""
@@ -130,7 +130,7 @@ load_profile:
         finally:
             os.unlink(config_path)
 
-    def test_validate_sla_no_sla_config(self):
+    def test_validate_sla_no_sla_config(self) -> None:
         """Test validate_sla with no SLA configuration."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""

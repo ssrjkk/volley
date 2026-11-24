@@ -3,7 +3,7 @@
 
 import tempfile
 import os
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from volley import LoadTest
 
 
@@ -11,7 +11,7 @@ class TestLoadTestRun:
     """Test LoadTest run and worker methods."""
 
     @patch("volley.HttpClient.request")
-    def test_loadtest_run(self, mock_request):
+    def test_loadtest_run(self, mock_request: Mock) -> None:
         """Test LoadTest run method."""
         mock_request.return_value = {
             "status_code": 200,
@@ -51,7 +51,7 @@ scenarios:
             os.unlink(config_path)
 
     @patch("volley.HttpClient.request")
-    def test_loadtest_worker(self, mock_request):
+    def test_loadtest_worker(self, mock_request: Mock) -> None:
         """Test LoadTest _worker method."""
         mock_request.return_value = {
             "status_code": 200,
@@ -90,7 +90,7 @@ scenarios:
             os.unlink(config_path)
 
     @patch("volley.HttpClient.request")
-    def test_loadtest_worker_with_rate_limit(self, mock_request):
+    def test_loadtest_worker_with_rate_limit(self, mock_request: Mock) -> None:
         """Test LoadTest _worker with rate limiting."""
         mock_request.return_value = {
             "status_code": 200,
@@ -129,7 +129,7 @@ scenarios:
         finally:
             os.unlink(config_path)
 
-    def test_loadtest_validate_sla_invalid_format(self):
+    def test_loadtest_validate_sla_invalid_format(self) -> None:
         """Test SLA validation with invalid format."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""
@@ -160,7 +160,7 @@ load_profile:
         finally:
             os.unlink(config_path)
 
-    def test_loadtest_no_load_profile(self):
+    def test_loadtest_no_load_profile(self) -> None:
         """Test LoadTest with no load profile."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""
@@ -182,7 +182,7 @@ target:
 class TestTokenBucketRefill:
     """Test TokenBucket refill edge cases."""
 
-    def test_token_bucket_refill_cap(self):
+    def test_token_bucket_refill_cap(self) -> None:
         """Test token bucket refill caps at burst."""
         from volley import TokenBucket
         import time

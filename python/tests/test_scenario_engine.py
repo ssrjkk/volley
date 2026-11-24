@@ -10,13 +10,13 @@ from volley import ScenarioEngine, LoadTest
 class TestScenarioEngine:
     """Test ScenarioEngine functionality."""
 
-    def test_scenario_engine_init(self):
+    def test_scenario_engine_init(self) -> None:
         """Test ScenarioEngine initialization."""
         engine = ScenarioEngine("/path/to/config.yaml")
         assert engine._config_path == "/path/to/config.yaml"
         assert engine._config == {}
 
-    def test_load_config_success(self):
+    def test_load_config_success(self) -> None:
         """Test successful config loading."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("test_id: test_001\ntarget:\n  base_url: http://example.com\n")
@@ -33,7 +33,7 @@ class TestScenarioEngine:
         finally:
             os.unlink(config_path)
 
-    def test_load_config_file_not_found(self):
+    def test_load_config_file_not_found(self) -> None:
         """Test loading non-existent config file."""
         engine = ScenarioEngine("/nonexistent/config.yaml")
         result = engine.load_config()
@@ -41,7 +41,7 @@ class TestScenarioEngine:
         assert result is False
         assert engine.config == {}
 
-    def test_load_config_invalid_yaml(self):
+    def test_load_config_invalid_yaml(self) -> None:
         """Test loading invalid YAML."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("invalid: yaml: content:\n  - broken\n")
@@ -58,7 +58,7 @@ class TestScenarioEngine:
         finally:
             os.unlink(config_path)
 
-    def test_config_property(self):
+    def test_config_property(self) -> None:
         """Test config property access."""
         engine = ScenarioEngine("/path/to/config.yaml")
         engine._config = {"test": "value"}
@@ -67,7 +67,7 @@ class TestScenarioEngine:
 
     @patch("subprocess.run")
     @patch("volley.core._find_cli")
-    def test_run_without_callback(self, mock_find_cli, mock_run):
+    def test_run_without_callback(self, mock_find_cli: Mock, mock_run: Mock) -> None:
         """Test run without callback."""
         mock_find_cli.return_value = "volley"
         mock_run.return_value = Mock(returncode=0, stdout="Success", stderr="")
@@ -91,7 +91,7 @@ class TestScenarioEngine:
 
     @patch("subprocess.run")
     @patch("volley.core._find_cli")
-    def test_run_with_callback(self, mock_find_cli, mock_run):
+    def test_run_with_callback(self, mock_find_cli: Mock, mock_run: Mock) -> None:
         """Test run with callback."""
         mock_find_cli.return_value = "volley"
         mock_result = Mock(returncode=0, stdout="Success", stderr="")
@@ -117,7 +117,7 @@ class TestScenarioEngine:
 class TestFindCli:
     """Test _find_cli function."""
 
-    def test_find_cli_returns_default_when_not_found(self):
+    def test_find_cli_returns_default_when_not_found(self) -> None:
         """Test _find_cli returns default when CLI not found."""
         from volley.core import _find_cli
 
@@ -128,7 +128,7 @@ class TestFindCli:
 class TestLoadTest:
     """Test LoadTest orchestrator."""
 
-    def test_loadtest_init(self):
+    def test_loadtest_init(self) -> None:
         """Test LoadTest initialization."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""
@@ -157,7 +157,7 @@ load_profile:
         finally:
             os.unlink(config_path)
 
-    def test_loadtest_with_oauth2(self):
+    def test_loadtest_with_oauth2(self) -> None:
         """Test LoadTest with OAuth2 authentication."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""
@@ -192,7 +192,7 @@ load_profile:
         finally:
             os.unlink(config_path)
 
-    def test_loadtest_with_tracing(self):
+    def test_loadtest_with_tracing(self) -> None:
         """Test LoadTest with tracing configuration."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""
@@ -219,7 +219,7 @@ load_profile:
         finally:
             os.unlink(config_path)
 
-    def test_loadtest_validate_sla_pass(self):
+    def test_loadtest_validate_sla_pass(self) -> None:
         """Test SLA validation passes."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""
@@ -249,7 +249,7 @@ load_profile:
         finally:
             os.unlink(config_path)
 
-    def test_loadtest_validate_sla_fail_error_rate(self):
+    def test_loadtest_validate_sla_fail_error_rate(self) -> None:
         """Test SLA validation fails on error rate."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""
@@ -280,7 +280,7 @@ load_profile:
         finally:
             os.unlink(config_path)
 
-    def test_loadtest_validate_sla_fail_latency(self):
+    def test_loadtest_validate_sla_fail_latency(self) -> None:
         """Test SLA validation fails on latency."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""
@@ -309,7 +309,7 @@ load_profile:
         finally:
             os.unlink(config_path)
 
-    def test_loadtest_print_results(self):
+    def test_loadtest_print_results(self) -> None:
         """Test _print_results method."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("""
