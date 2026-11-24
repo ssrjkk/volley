@@ -65,9 +65,10 @@ public:
         auto& latency_histogram = prometheus::BuildHistogram()
             .Name("volley_request_duration_seconds")
             .Help("Request latency in seconds")
-            .Buckets({0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0})
             .Register(*registry_);
-        latency_histogram_ = &latency_histogram.Add({});
+        latency_histogram_ = &latency_histogram.Add(
+            {}, prometheus::Histogram::BucketBoundaries{
+                    0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0});
 
         auto& rps_gauge = prometheus::BuildGauge()
             .Name("volley_requests_per_second")
