@@ -39,7 +39,7 @@ jobs:
         run: |
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_TOOLCHAIN_FILE=build-conan/conan_toolchain.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=build-conan/build/Release/generators/conan_toolchain.cmake \
             -DVOLLEY_BUILD_TESTS=ON \
             -DVOLLEY_BUILD_PYTHON=OFF \
             -DVOLLEY_BUILD_WORKERS=OFF \
