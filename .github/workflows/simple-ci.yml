@@ -10,7 +10,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - uses: actions/checkout@v7
@@ -67,7 +67,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install tools
-        run: pip install pytest==9.1.1 black==26.5.1 mypy==2.3.1
+        run: pip install pytest==9.1.1 black==26.5.1 mypy==2.3.1 "PyYAML>=6.0"
 
       - name: Check formatting
         run: black --check python/
@@ -77,3 +77,6 @@ jobs:
 
       - name: Syntax check
         run: python3 -m py_compile python/volley/core.py
+
+      - name: Run Python tests
+        run: PYTHONPATH=python python3 -m pytest -q
