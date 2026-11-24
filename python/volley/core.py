@@ -8,7 +8,7 @@ import json
 import time
 import threading
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional, Callable
+from typing import List, Dict, Any, Optional, Callable, TypedDict
 from pathlib import Path
 from enum import Enum
 
@@ -104,6 +104,21 @@ class Scenario:
         return {"name": self.name, "weight": self.weight, "steps": self.steps}
 
 
+class MetricsSnapshot(TypedDict):
+    total_requests: int
+    successful_requests: int
+    failed_requests: int
+    total_bytes_sent: int
+    total_bytes_received: int
+    mean_latency_us: float
+    min_latency_us: int
+    max_latency_us: int
+    p95_latency_us: int
+    p99_latency_us: int
+    requests_per_second: float
+    error_rate: float
+
+
 class MetricsCollector:
     """Thread-safe HTTP request metrics collector with percentile computation."""
 
@@ -165,7 +180,7 @@ class MetricsCollector:
             idx = int(len(sorted_lats) * 0.99)
             return sorted_lats[min(idx, len(sorted_lats) - 1)]
 
-    def snapshot(self) -> dict[str, object]:
+    def snapshot(self) -> MetricsSnapshot:
         with self._lock:
             sorted_lats = sorted(self._latencies)
             elapsed = time.time() - self._start_time

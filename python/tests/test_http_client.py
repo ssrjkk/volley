@@ -1,6 +1,7 @@
 # @author ssrjkk | volley
 """Tests for HttpClient class."""
 
+from email.message import Message
 from unittest.mock import Mock, patch
 from volley import HttpClient, HttpRequest
 
@@ -8,14 +9,14 @@ from volley import HttpClient, HttpRequest
 class TestHttpClient:
     """Test HttpClient HTTP requests."""
 
-    def test_http_client_default_values(self):
+    def test_http_client_default_values(self) -> None:
         """Test HttpClient default initialization."""
         client = HttpClient()
         assert client.timeout_ms == 5000
         assert client.keep_alive is True
 
     @patch("urllib.request.urlopen")
-    def test_request_success(self, mock_urlopen):
+    def test_request_success(self, mock_urlopen: Mock) -> None:
         """Test successful HTTP request."""
         mock_response = Mock()
         mock_response.status = 200
@@ -33,7 +34,7 @@ class TestHttpClient:
         assert result["latency_us"] >= 0
 
     @patch("urllib.request.urlopen")
-    def test_request_https_port_443(self, mock_urlopen):
+    def test_request_https_port_443(self, mock_urlopen: Mock) -> None:
         """Test HTTPS request on port 443."""
         mock_response = Mock()
         mock_response.status = 200
@@ -48,7 +49,7 @@ class TestHttpClient:
         assert result["status_code"] == 200
 
     @patch("urllib.request.urlopen")
-    def test_request_with_body(self, mock_urlopen):
+    def test_request_with_body(self, mock_urlopen: Mock) -> None:
         """Test HTTP request with body."""
         mock_response = Mock()
         mock_response.status = 201
@@ -69,7 +70,7 @@ class TestHttpClient:
         assert result["status_code"] == 201
 
     @patch("urllib.request.urlopen")
-    def test_request_http_error(self, mock_urlopen):
+    def test_request_http_error(self, mock_urlopen: Mock) -> None:
         """Test HTTP error response."""
         import urllib.error
 
@@ -77,7 +78,7 @@ class TestHttpClient:
             url="http://example.com/notfound",
             code=404,
             msg="Not Found",
-            hdrs={},
+            hdrs=Message(),
             fp=Mock(read=Mock(return_value=b"Not Found")),
         )
         mock_urlopen.side_effect = error
@@ -90,7 +91,7 @@ class TestHttpClient:
         assert result["body"] == "Not Found"
 
     @patch("urllib.request.urlopen")
-    def test_request_connection_error(self, mock_urlopen):
+    def test_request_connection_error(self, mock_urlopen: Mock) -> None:
         """Test connection error."""
         mock_urlopen.side_effect = Exception("Connection refused")
 
@@ -103,7 +104,7 @@ class TestHttpClient:
         assert result["latency_us"] == 0
 
     @patch("urllib.request.urlopen")
-    def test_request_with_headers(self, mock_urlopen):
+    def test_request_with_headers(self, mock_urlopen: Mock) -> None:
         """Test request with custom headers."""
         mock_response = Mock()
         mock_response.status = 200

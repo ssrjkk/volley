@@ -4,6 +4,8 @@
 import pytest
 import threading
 import time
+from collections.abc import Iterator
+from typing import Any
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from volley import HttpClient, HttpRequest, ConnectionPool, PoolConfig
 
@@ -11,10 +13,10 @@ from volley import HttpClient, HttpRequest, ConnectionPool, PoolConfig
 class IntegrationTestHandler(BaseHTTPRequestHandler):
     """Simple HTTP handler for integration tests"""
 
-    def log_message(self, format, *args):
+    def log_message(self, format: str, *args: object) -> None:
         pass
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         if self.path == "/success":
             self.send_response(200)
             self.send_header("Content-Type", "text/plain")
@@ -49,7 +51,7 @@ class IntegrationTestHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Not Found")
 
-    def do_POST(self):
+    def do_POST(self) -> None:
         content_length = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(content_length)
         self.send_response(200)
@@ -59,7 +61,7 @@ class IntegrationTestHandler(BaseHTTPRequestHandler):
 
 
 @pytest.fixture(scope="module")
-def http_server():
+def http_server() -> Iterator[str]:
     """Start a real HTTP server for integration tests"""
     server = HTTPServer(("127.0.0.1", 0), IntegrationTestHandler)
     port = server.server_address[1]
@@ -70,7 +72,7 @@ def http_server():
     server.shutdown()
 
 
-def test_http_get_success(http_server):
+def test_http_get_success(http_server: str) -> None:
     """Test real HTTP GET request"""
     host, port = http_server.split(":")
     client = HttpClient()
@@ -83,7 +85,7 @@ def test_http_get_success(http_server):
     assert resp["latency_us"] > 0
 
 
-def test_http_get_with_delay(http_server):
+def test_http_get_with_delay(http_server: str) -> None:
     """Test HTTP request with server-side delay"""
     host, port = http_server.split(":")
     client = HttpClient()
@@ -98,7 +100,7 @@ def test_http_get_with_delay(http_server):
     assert elapsed >= 0.1
 
 
-def test_http_get_large_response(http_server):
+def test_http_get_large_response(http_server: str) -> None:
     """Test HTTP request with large response body"""
     host, port = http_server.split(":")
     client = HttpClient()
@@ -111,7 +113,7 @@ def test_http_get_large_response(http_server):
     assert resp["body"] == "X" * 10000
 
 
-def test_http_custom_headers(http_server):
+def test_http_custom_headers(http_server: str) -> None:
     """Test HTTP request with custom headers"""
     host, port = http_server.split(":")
     client = HttpClient()
@@ -129,7 +131,7 @@ def test_http_custom_headers(http_server):
     assert "test-value" in resp["body"]
 
 
-def test_http_post_with_body(http_server):
+def test_http_post_with_body(http_server: str) -> None:
     """Test HTTP POST request with body"""
     host, port = http_server.split(":")
     client = HttpClient()
@@ -141,7 +143,7 @@ def test_http_post_with_body(http_server):
     assert "POST: test data" in resp["body"]
 
 
-def test_http_404_not_found(http_server):
+def test_http_404_not_found(http_server: str) -> None:
     """Test HTTP request to non-existent endpoint"""
     host, port = http_server.split(":")
     client = HttpClient()
@@ -153,7 +155,7 @@ def test_http_404_not_found(http_server):
     assert resp["body"] == "Not Found"
 
 
-def test_http_500_server_error(http_server):
+def test_http_500_server_error(http_server: str) -> None:
     """Test HTTP request to endpoint returning 500"""
     host, port = http_server.split(":")
     client = HttpClient()
@@ -165,7 +167,7 @@ def test_http_500_server_error(http_server):
     assert "Internal Error" in resp["body"]
 
 
-def test_http_connection_pool_reuse(http_server):
+def test_http_connection_pool_reuse(http_server: str) -> None:
     """Test connection pool reuses connections"""
     host, port = http_server.split(":")
     pool = ConnectionPool(PoolConfig(min_connections=2, max_connections=5))
@@ -181,7 +183,7 @@ def test_http_connection_pool_reuse(http_server):
     pool.release(client2, host, port)
 
 
-def test_http_multiple_requests_sequential(http_server):
+def test_http_multiple_requests_sequential(http_server: str) -> None:
     """Test multiple sequential HTTP requests"""
     host, port = http_server.split(":")
     client = HttpClient()
@@ -193,12 +195,12 @@ def test_http_multiple_requests_sequential(http_server):
         assert resp["body"] == "OK"
 
 
-def test_http_multiple_requests_parallel(http_server):
+def test_http_multiple_requests_parallel(http_server: str) -> None:
     """Test multiple parallel HTTP requests"""
     host, port = http_server.split(":")
-    results = []
+    results: list[dict[str, Any]] = []
 
-    def make_request():
+    def make_request() -> None:
         client = HttpClient()
         req = HttpRequest(method="GET", target="/success", host=host, port=port)
         resp = client.request(req)
@@ -216,7 +218,7 @@ def test_http_multiple_requests_parallel(http_server):
         assert resp["body"] == "OK"
 
 
-def test_http_https_detection():
+def test_http_https_detection() -> None:
     """Test HTTPS scheme detection based on port"""
     req = HttpRequest(method="GET", target="/", host="localhost", port="443")
     req_https = HttpRequest(method="GET", target="/", host="localhost", port="8080")
@@ -225,7 +227,7 @@ def test_http_https_detection():
     assert str(req_https.port) == "8080"
 
 
-def test_http_timeout():
+def test_http_timeout() -> None:
     """Test HTTP request timeout"""
     client = HttpClient()
     client.timeout_ms = 100
