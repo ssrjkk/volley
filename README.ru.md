@@ -186,6 +186,8 @@ Endpoints:
 - [Architecture](docs/) — ADR и дизайн-документы
 - [Scenarios](scenarios/) — Примеры YAML конфигураций
 - [Grafana Dashboards](deploy/grafana/) — Готовые дашборды для мониторинга
+- [Architecture](docs/architecture.md)
+- [Showcase](https://ssrjkk.github.io/volley/showcase/)
 
 ## Лицензия
 
@@ -198,3 +200,13 @@ Apache 2.0 — см. [LICENSE](LICENSE)
 **ssrjkk**  
 Telegram: [@ssrjkk](https://t.me/ssrjkk)  
 Email: ray013lefe@gmail.com
+
+## Сборка
+
+```bash
+git clone https://github.com/ssrjkk/volley.git
+cd volley
+mkdir build && cd build
+cmake ..
+make
+```
