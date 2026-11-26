@@ -27,8 +27,8 @@ Enterprise-grade нагрузочное тестирование на C++20 asyn
 
 ## Почему volley?
 
-- **Молниеносная скорость** — Lock-free метрики, async I/O на Boost.Beast/ASIO, пул соединений
-- **Production-ready** — 8-job CI с ASan/TSan, 100% покрытие тестами, ноль предупреждений
+- **Async I/O** — lock-free метрики, Boost.Beast/ASIO и пул соединений
+- **CI** — сборка, тесты, ASan/TSan, coverage, benchmarks, integration и E2E smoke
 - **Гибкость** — HTTP/1.1, WebSocket, raw TCP, кастомные протоколы через factory pattern
 - **Наблюдаемость** — OTLP/HTTP+JSON трейсинг, Prometheus /metrics, валидация SLA
 - **Безопасность** — OAuth2, HashiCorp Vault, mTLS, API keys из коробки
