@@ -11,7 +11,7 @@
 
 ---
 
-Enterprise-grade нагрузочное тестирование на C++20 async ядре. YAML-сценарии, безопасность OAuth2/Vault/mTLS, полная наблюдаемость с OpenTelemetry и Prometheus.
+Нагрузочное тестирование на C++20 async ядре. YAML-сценарии, безопасность OAuth2/Vault/mTLS, полная наблюдаемость с OpenTelemetry и Prometheus.
 
 **Сайт:** https://ssrjkk.github.io/volley/
 
