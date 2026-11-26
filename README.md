@@ -6,7 +6,7 @@
 
 
 
-[Русский](README_RU.md)
+[Русский](README.ru.md)
 
 ---
 
