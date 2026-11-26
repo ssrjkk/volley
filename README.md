@@ -26,8 +26,8 @@ Captured from the published site in a real browser (Chrome, 1440×900 and 390×8
 
 ## Why volley?
 
-- **Blazing fast** — Lock-free metrics, async I/O with Boost.Beast/ASIO, connection pooling
-- **Production-ready** — 8-job CI with ASan/TSan, 100% test coverage, zero warnings
+- **Async I/O** — lock-free metrics, Boost.Beast/ASIO and connection pooling
+- **CI** — build, tests, ASan/TSan, coverage, benchmarks, integration and E2E smoke
 - **Flexible** — HTTP/1.1, WebSocket, raw TCP, custom protocols via factory pattern
 - **Observable** — OTLP/HTTP+JSON tracing, Prometheus /metrics, SLA validation
 - **Secure** — OAuth2, HashiCorp Vault, mTLS, API keys out of the box
