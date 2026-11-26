@@ -95,7 +95,6 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      id-token: write
     needs: build
     timeout-minutes: 30
     steps:
@@ -196,7 +195,6 @@ jobs:
       - name: Upload to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
-          use_oidc: true
           files: coverage.info
           fail_ci_if_error: true
           verbose: true
