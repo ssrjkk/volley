@@ -7,7 +7,7 @@
 
 
 
-[English](README.md)
+> **Языки:** [English](README.md) · [Русский](README.ru.md)
 
 ---
 
